@@ -1,26 +1,29 @@
-// import com.rabbitmq.client.Channel;
-// import com.rabbitmq.client.Connection;
-// import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
-// public class Produtor {
+public class Produtor {
 
-//     public static void main(String[] args) throws Exception {
-//         ConnectionFactory connectionFactory = new ConnectionFactory();
-//         try (
-//                 Connection connection = connectionFactory.newConnection();
-//                 Channel canal = connection.createChannel();
-//         ) {
-//             String mensagem = "Olá";
-//             String NOME_FILA = "task_queue";
+    private static final String NOME_FILA = "filaOlaMundo";
 
-//             //(queue, passive, durable, exclusive, autoDelete, arguments)
-//             canal.queueDeclare(NOME_FILA, true, false, false, null);
+    public static void main(String[] args) throws Exception {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost("localhost");
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
+        connectionFactory.setPort(5672);
 
-//             // ​(exchange, routingKey, mandatory, immediate, props, byte[] body)
-//             canal.basicPublish("", NOME_FILA, false, false, null, mensagem.getBytes());
+        try (
+                Connection connection = connectionFactory.newConnection();
+                Channel channel = connection.createChannel()
+        ) {
+            channel.queueDeclare(NOME_FILA, false, false, false, null);
 
-//         }
-//     }
-// }
+            String mensagem = "Olá mundo!";
 
+            channel.basicPublish("", NOME_FILA, null, mensagem.getBytes("UTF-8"));
 
+            System.out.println(" [x] Enviado: '" + mensagem + "'");
+        }
+    }
+}

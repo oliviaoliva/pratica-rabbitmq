@@ -1,30 +1,33 @@
-// import com.rabbitmq.client.Channel;
-// import com.rabbitmq.client.Connection;
-// import com.rabbitmq.client.ConnectionFactory;
-// import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
 
+public class Consumidor {
 
-// public class Consumidor {
-//     public static void main(String[] args) throws Exception {
-//         ConnectionFactory connectionFactory = new ConnectionFactory();
-//         connectionFactory.setHost("localhost");
-//         Connection conexao = connectionFactory.newConnection();
-//         Channel canal = conexao.createChannel();
+    private static final String NOME_FILA = "filaOlaMundo";
 
-//         String NOME_FILA = "task_queue"
-//                 + "";
-//         canal.queueDeclare(NOME_FILA, true, false, false, null);
+    public static void main(String[] args) throws Exception {
+        System.out.println("Consumidor iniciado...");
 
-//         DeliverCallback callback = (consumerTag, delivery) -> {
-//             String mensagem = new String(delivery.getBody());
-//             System.out.println("Eu " + consumerTag + " Recebi: " + mensagem);
-//         };
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost("localhost");
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
+        connectionFactory.setPort(5672);
 
-//         // fila, noAck, callback, callback em caso de cancelamento (por exemplo, a fila foi deletada)
-//         canal.basicConsume(NOME_FILA, true, callback, consumerTag -> {
-//             System.out.println("Cancelaram a fila: " + NOME_FILA);
-//         });
-//     }
-// }
+        Connection conexao = connectionFactory.newConnection();
 
+        Channel canal = conexao.createChannel();
+        canal.queueDeclare(NOME_FILA, false, false, false, null);
 
+        DeliverCallback callback = (consumerTag, delivery) -> {
+            String mensagem = new String(delivery.getBody(), "UTF-8");
+            System.out.println(" [x] Recebido: '" + mensagem + "'");
+        };
+
+        canal.basicConsume(NOME_FILA, true, callback, consumerTag -> {});
+
+        System.out.println("Continuarei executando outras atividades enquanto não chega mensagem...");
+    }
+}
